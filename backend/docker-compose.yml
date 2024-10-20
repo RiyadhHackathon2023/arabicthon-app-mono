@@ -1,0 +1,84 @@
+version: '3'
+
+services:
+  backend-app:
+    build: .
+    container_name: backend_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - neo4j
+      - swift
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=backend
+      - POSTGRES_DB=backend_db
+      - POSTGRES_HOST=postgres
+      - SWIFT_ACCOUNT_ID=AUTH_test
+      - SWIFT_ACCOUNT=test:tester
+      - SWIFT_KEY=testing
+      - SWIFT_AUTH_URL=http://swift-storage:12345/auth/v1.0
+      - SWIFT_ENDPOINT=http://swift-storage:12345
+      - SWIFT_AUTH_VERSION=1
+      - CONTAINER=documents
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NEO4J_USER=neo4j
+      - NEO4J_PASS=E53hCDHJjVnO8aTLMejfxtmz1G7q9LplVVO6K5L6drg
+      - NEO4J_URI=neo4j://neo4j:7687
+
+
+  emitter:
+    build:
+      context: ./emitter
+      dockerfile: ./Dockerfile
+    container_name: emitter-app
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redis
+    environment:
+      - PORT=8001
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  postgres:
+    image: postgres:latest
+    container_name: backend_db
+    environment:
+      POSTGRES_USER: "root"
+      POSTGRES_PASSWORD: "root"
+      POSTGRES_DB: "backend_db"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - "./configs/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf"
+
+  redis:
+    image: redis:latest
+    container_name: redis-db
+    ports:
+      - "6379:6379"
+
+  swift:
+    image: morrisjobke/docker-swift-onlyone
+    container_name: swift-storage
+    restart: always
+    ports:
+      - "12345:8080"
+
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    restart: always
+    environment:
+      NEO4J_AUTH: neo4j/E53hCDHJjVnO8aTLMejfxtmz1G7q9LplVVO6K5L6drg
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+
+volumes:
+  postgres_data: {}
