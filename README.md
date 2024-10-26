@@ -80,6 +80,7 @@ Swift is set up using the following configuration variables:
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `REACT_APP_BACKEND_URL`| The URL for the backend API, set to `http://localhost:8000` to allow communication between the frontend and backend.                        |
 
+
 ## Running the Project
 
 1. Clone the repository and navigate to the project directory.
